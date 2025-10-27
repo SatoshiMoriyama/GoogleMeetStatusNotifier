@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Google Meet Status Notifier",
+  "description": "会議の開始/終了を自動検知してWebhookに通知します",
+  "version": "1.0",
+  "permissions": ["activeTab"],
+  "content_scripts": [{
+    "matches": ["https://meet.google.com/*"],
+    "js": ["config.js", "content.js"]
+  }]
+}
