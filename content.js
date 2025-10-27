@@ -36,6 +36,7 @@ if (window.location.hostname === 'meet.google.com') {
         })
       });
     } catch (error) {
+      console.error(`[Webhook] ${status} 送信エラー:`, error);
     }
   };
   
