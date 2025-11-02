@@ -72,7 +72,7 @@ if (window.location.hostname === 'meet.google.com') {
   const observer = new MutationObserver(throttledCheckState);
   observer.observe(document.body, { childList: true, subtree: true });
   
-  window.addEventListener('beforeunload', () => {
+  window.addEventListener('pagehide', () => {
     if (currentState === STATES.IN_MEETING) {
       const data = new Blob([JSON.stringify({
         status: 'meeting_ended',
