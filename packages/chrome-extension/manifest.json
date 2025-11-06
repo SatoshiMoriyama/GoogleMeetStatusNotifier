@@ -4,8 +4,14 @@
   "description": "会議の開始/終了を自動検知してWebhookに通知します",
   "version": "1.0",
   "permissions": ["activeTab"],
-  "content_scripts": [{
-    "matches": ["https://meet.google.com/*"],
-    "js": ["config.js", "content.js"]
-  }]
+  "host_permissions": ["https://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["config.js", "content.js"]
+    }
+  ]
 }
