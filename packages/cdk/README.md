@@ -1,14 +1,37 @@
-# Welcome to your CDK TypeScript project
+# Alexa Skill & Webhook CDK Project
 
-This is a blank project for CDK development with TypeScript.
+Alexa スキルと Webhook を AWS にデプロイするための CDK プロジェクト
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## 構成
 
-## Useful commands
+- **AlexaSkillStack**: Alexa スキル用の Lambda 関数と DynamoDB テーブル（us-west-2）
+- **WebhookStack**: Webhook 受信用の API Gateway と Lambda 関数（ap-northeast-1）
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+## セットアップ
+
+### 1. 環境変数の設定
+
+`.env` ファイルを作成：
+
+```bash
+ALEXA_CLIENT_ID=your_client_id
+ALEXA_CLIENT_SECRET=your_client_secret
+ALEXA_SKILL_ID=your_skill_id
+```
+
+### 2. 依存関係のインストール
+
+```bash
+pnpm install
+```
+
+## ファイル構成
+
+```
+lib/
+├── stage/
+│   └── application-stage.ts  # アプリケーション全体のステージ
+└── stack/
+    ├── alexa-skill-stack.ts  # Alexa スキルスタック
+    └── webhook-stack.ts      # Webhook スタック
+```
