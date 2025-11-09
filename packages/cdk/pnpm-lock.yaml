@@ -10,13 +10,13 @@ importers:
     dependencies:
       '@aws-solutions-constructs/aws-apigateway-lambda':
         specifier: ^2.94.0
-        version: 2.94.0(@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2))(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2)
+        version: 2.94.0(@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2))(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2)
       '@aws-solutions-constructs/aws-lambda-dynamodb':
         specifier: ^2.94.0
-        version: 2.94.0(@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2))(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2)
+        version: 2.94.0(@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2))(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2)
       aws-cdk-lib:
-        specifier: 2.215.0
-        version: 2.215.0(constructs@10.4.2)
+        specifier: 2.222.0
+        version: 2.222.0(constructs@10.4.2)
       constructs:
         specifier: ^10.0.0
         version: 10.4.2
@@ -33,6 +33,9 @@ importers:
       aws-cdk:
         specifier: 2.1030.0
         version: 2.1030.0
+      cdk-nag:
+        specifier: ^2.37.55
+        version: 2.37.55(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2)
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@22.7.9)(ts-node@10.9.2(@types/node@22.7.9)(typescript@5.6.3))
@@ -54,8 +57,8 @@ packages:
   '@aws-cdk/asset-node-proxy-agent-v6@2.1.0':
     resolution: {integrity: sha512-7bY3J8GCVxLupn/kNmpPc5VJz8grx+4RKfnnJiO1LG+uxkZfANZG3RMHhE+qQxxwkyQ9/MfPtTpf748UhR425A==}
 
-  '@aws-cdk/cloud-assembly-schema@48.17.0':
-    resolution: {integrity: sha512-k1nNmluSq3Pf7N6ljgVRw2wyZLbdODCSszN+UdvXMIC8jnU08ak5DSjioLhGUSPP+yjZzuxMnS27kY9DqydRjA==}
+  '@aws-cdk/cloud-assembly-schema@48.18.0':
+    resolution: {integrity: sha512-KJHmkji59QboUIytK/imIY/ajt/r7OOXdyvZz25e0jssreyyxx9HUswZpcB0BM/9ZkVI7IdzYlotWe6opXdapg==}
     engines: {node: '>= 18.0.0'}
     bundledDependencies:
       - jsonschema
@@ -442,8 +445,8 @@ packages:
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
 
-  aws-cdk-lib@2.215.0:
-    resolution: {integrity: sha512-DvRiUEsZSc4voeqfkYGrjP0f4NJ1u94JvbVCUQ+Fci4rf25xLRSEVPzyaH9Tf7V38i0Otts1+u7seunqe+R19g==}
+  aws-cdk-lib@2.222.0:
+    resolution: {integrity: sha512-G+M6yUDc+GK3Ebb9ULLzjSkDwJ/AlL4Jbybq59tQQ0ZtcfXciPHVwutKuIgEWadJrRI5dPhCc+mGDYXTtKqirw==}
     engines: {node: '>= 18.0.0'}
     peerDependencies:
       constructs: ^10.0.0
@@ -533,6 +536,12 @@ packages:
 
   caniuse-lite@1.0.30001753:
     resolution: {integrity: sha512-Bj5H35MD/ebaOV4iDLqPEtiliTN29qkGtEHCwawWn4cYm+bPJM2NsaP30vtZcnERClMzp52J4+aw2UNbK4o+zw==}
+
+  cdk-nag@2.37.55:
+    resolution: {integrity: sha512-xcAkygwbph3pp7N0UEzJBmXUH/MIsluV7DYJSeZ/V3yCr0Y0QaRGO298WyD6mi4K+Rmnpl+EJoWUxcOblOqLKA==}
+    peerDependencies:
+      aws-cdk-lib: ^2.176.0
+      constructs: ^10.0.5
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -1332,24 +1341,24 @@ snapshots:
 
   '@aws-cdk/asset-node-proxy-agent-v6@2.1.0': {}
 
-  '@aws-cdk/cloud-assembly-schema@48.17.0': {}
+  '@aws-cdk/cloud-assembly-schema@48.18.0': {}
 
-  '@aws-solutions-constructs/aws-apigateway-lambda@2.94.0(@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2))(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2)':
+  '@aws-solutions-constructs/aws-apigateway-lambda@2.94.0(@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2))(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2)':
     dependencies:
-      '@aws-solutions-constructs/core': 2.94.0(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2)
-      aws-cdk-lib: 2.215.0(constructs@10.4.2)
+      '@aws-solutions-constructs/core': 2.94.0(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2)
+      aws-cdk-lib: 2.222.0(constructs@10.4.2)
       constructs: 10.4.2
 
-  '@aws-solutions-constructs/aws-lambda-dynamodb@2.94.0(@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2))(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2)':
+  '@aws-solutions-constructs/aws-lambda-dynamodb@2.94.0(@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2))(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2)':
     dependencies:
-      '@aws-solutions-constructs/core': 2.94.0(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2)
-      aws-cdk-lib: 2.215.0(constructs@10.4.2)
+      '@aws-solutions-constructs/core': 2.94.0(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2)
+      aws-cdk-lib: 2.222.0(constructs@10.4.2)
       constructs: 10.4.2
 
-  '@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.215.0(constructs@10.4.2))(constructs@10.4.2)':
+  '@aws-solutions-constructs/core@2.94.0(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2)':
     dependencies:
-      '@aws-cdk/cloud-assembly-schema': 48.17.0
-      aws-cdk-lib: 2.215.0(constructs@10.4.2)
+      '@aws-cdk/cloud-assembly-schema': 48.18.0
+      aws-cdk-lib: 2.222.0(constructs@10.4.2)
       constructs: 10.4.2
 
   '@babel/code-frame@7.27.1':
@@ -1840,11 +1849,11 @@ snapshots:
     dependencies:
       sprintf-js: 1.0.3
 
-  aws-cdk-lib@2.215.0(constructs@10.4.2):
+  aws-cdk-lib@2.222.0(constructs@10.4.2):
     dependencies:
       '@aws-cdk/asset-awscli-v1': 2.2.242
       '@aws-cdk/asset-node-proxy-agent-v6': 2.1.0
-      '@aws-cdk/cloud-assembly-schema': 48.17.0
+      '@aws-cdk/cloud-assembly-schema': 48.18.0
       constructs: 10.4.2
 
   aws-cdk@2.1030.0:
@@ -1944,6 +1953,11 @@ snapshots:
   camelcase@6.3.0: {}
 
   caniuse-lite@1.0.30001753: {}
+
+  cdk-nag@2.37.55(aws-cdk-lib@2.222.0(constructs@10.4.2))(constructs@10.4.2):
+    dependencies:
+      aws-cdk-lib: 2.222.0(constructs@10.4.2)
+      constructs: 10.4.2
 
   chalk@4.1.2:
     dependencies:
