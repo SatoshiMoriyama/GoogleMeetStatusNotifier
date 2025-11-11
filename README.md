@@ -1,60 +1,132 @@
-# Google Meet Status Notifier
+# Google Meet Status Notifier with Alexa Integration
 
-Google Meet の会議開始/終了を自動検知して Webhook に通知する Chrome 拡張機能
+Google Meet の会議開始/終了を自動検知して Alexa に通知するシステム
 
-## 機能
+## 概要
 
-- 会議開始時に `meeting_started` を送信
-- 会議終了時に `meeting_ended` を送信
-- タブを閉じた場合も確実に終了通知を送信
+このプロジェクトは、Google Meet の会議状態を検知し、Alexa スキルを通じて音声通知を行うシステムです。
+
+### システム構成
+
+```
+Chrome 拡張機能 → API Gateway → Lambda → Alexa スキル
+                                    ↓
+                                DynamoDB
+```
+
+## プロジェクト構成（モノレポ）
+
+```
+.
+├── packages/
+│   ├── cdk/                    # AWS CDK インフラコード
+│   │   ├── lib/
+│   │   │   ├── stack/
+│   │   │   │   ├── alexa-skill-stack.ts   # Alexa スキルスタック
+│   │   │   │   └── webhook-stack.ts       # Webhook スタック
+│   │   │   └── stage/
+│   │   │       └── application-stage.ts   # アプリケーションステージ
+│   │   ├── lambda/
+│   │   │   ├── skill/          # Alexa スキル Lambda
+│   │   │   └── webhook/        # Webhook Lambda
+│   │   └── README.md
+│   └── chrome-extension/       # Chrome 拡張機能
+│       ├── manifest.json
+│       ├── content.js
+│       └── config.js
+├── archive/                    # 過去の実装資料
+└── README.md
+```
 
 ## セットアップ
 
-### 1. 設定ファイルの作成
+### 1. AWS インフラのデプロイ（CDK）
 
 ```bash
+cd packages/cdk
+
+# 依存関係のインストール
+pnpm install
+
+# 環境変数の設定
+cp .env.sample .env
+# .env を編集して Alexa の認証情報を設定
+
+# デプロイ
+pnpm cdk deploy --all
+```
+
+詳細は [packages/cdk/README.md](packages/cdk/README.md) を参照。
+
+### 2. Chrome 拡張機能のセットアップ
+
+```bash
+cd packages/chrome-extension
+
+# 設定ファイルの作成
 cp config.sample.js config.js
 ```
 
-### 2. Webhook URL の設定
-
-`config.js` を編集して Webhook URL を設定：
+`config.js` を編集して、CDK でデプロイした Webhook URL を設定：
 
 ```javascript
 const CONFIG = {
-  WEBHOOK_URL: "https://your-webhook-url.example.com/webhook",
+  WEBHOOK_URL: "https://your-api-gateway-url.execute-api.ap-northeast-1.amazonaws.com/prod/webhook",
 };
 ```
 
-### 3. Chrome 拡張機能として読み込み
+#### Chrome への読み込み
 
 1. Chrome で `chrome://extensions/` を開く
 2. 右上の「デベロッパーモード」を ON にする
 3. 「パッケージ化されていない拡張機能を読み込む」をクリック
-4. このフォルダを選択
+4. `packages/chrome-extension` フォルダを選択
 
-## Webhook 仕様
+## 使い方
 
-### リクエスト形式
+1. Chrome 拡張機能をインストール
+2. Google Meet で会議を開始
+3. 会議開始時に Alexa が通知
+4. 会議終了時に Alexa が通知
 
-```json
-{
-  "status": "meeting_started",
-  "timestamp": "2024-01-01T12:00:00.000Z"
-}
+## 技術スタック
+
+### インフラ（CDK）
+
+- **AWS CDK**: TypeScript でインフラを定義
+- **AWS Lambda**: サーバーレス関数（Node.js 20.x）
+- **Amazon DynamoDB**: ユーザー状態の保存
+- **Amazon API Gateway**: Webhook エンドポイント
+- **AWS Solutions Constructs**: ベストプラクティスを適用した構成
+
+### フロントエンド
+
+- **Chrome Extension**: Manifest V3
+- **Content Script**: Google Meet のページを監視
+
+## 開発
+
+### CDK のテスト
+
+```bash
+cd packages/cdk
+pnpm test
 ```
 
-### status の値
+### CDK Nag によるセキュリティチェック
 
-- `meeting_started`: 会議開始
-- `meeting_ended`: 会議終了
-
-## ファイル構成
-
+```bash
+cd packages/cdk
+pnpm cdk synth
 ```
-.
-├── manifest.json       # 拡張機能の設定
-├── content.js          # メインロジック
-├── config.js           # Webhook URL設定（gitignore）
-└── config.sample.js    # 設定サンプル
-```
+
+## アーキテクチャの特徴
+
+- **マルチリージョン**: Alexa スキル（us-west-2）と Webhook（ap-northeast-1）
+- **サーバーレス**: Lambda + DynamoDB でコスト最適化
+- **セキュリティ**: CDK Nag によるベストプラクティスチェック
+- **スケーラブル**: DynamoDB のオンデマンド課金
+
+## ライセンス
+
+MIT
