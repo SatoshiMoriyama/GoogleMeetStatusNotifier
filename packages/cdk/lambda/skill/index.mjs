@@ -326,7 +326,10 @@ export const handler = async (event) => {
 
   try {
     // Lambda Aからの直接呼び出し（会議開始通知）
-    if (event.source === "lambda-webhook") {
+    if (
+      event.source === "lambda-webhook" ||
+      event.source === "lambda-durable-webhook"
+    ) {
       const detectionState =
         event.status === "meeting_started" ? "DETECTED" : "NOT_DETECTED";
       return await sendChangeReport(detectionState);

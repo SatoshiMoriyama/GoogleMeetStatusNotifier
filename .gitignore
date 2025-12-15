@@ -1,5 +1,29 @@
-config.js
+# Chrome Extension
+packages/chrome-extension/config.js
+
+# Amazon Q
+.amazonq/
+
+# Archive
 archive/
 
+# Node
+node_modules/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# CDK
+.cdk.staging/
+cdk.out/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
 **/.DS_Store

@@ -2,6 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { AlexaSkillStack } from "../stack/alexa-skill-stack";
 import { WebhookStack } from "../stack/webhook-stack";
+import { DurableWebhookStack } from "../stack/durable-webhook-stack";
 
 export interface ApplicationStageProps extends cdk.StageProps {
   alexaClientId: string;
@@ -25,6 +26,12 @@ export class ApplicationStage extends cdk.Stage {
     new WebhookStack(this, "WebhookStack", {
       skillLambdaArn: skillStack.skillLambdaArn,
       env: { region: "ap-northeast-1" },
+    });
+
+    // Durable Functions版（US East Ohio）
+    new DurableWebhookStack(this, "DurableWebhookStack", {
+      skillLambdaArn: skillStack.skillLambdaArn,
+      env: { region: "us-east-2" },
     });
   }
 }
