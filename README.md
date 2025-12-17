@@ -9,9 +9,9 @@ Google Meet の会議開始/終了を自動検知して Alexa に通知するシ
 ### システム構成
 
 ```
-Chrome 拡張機能 → API Gateway → Lambda → Alexa スキル
-                                    ↓
-                                DynamoDB
+Chrome 拡張機能 → API Gateway → EventBridge → Lambda (Durable) → Alexa スキル
+                                                    ↓
+                                                DynamoDB
 ```
 
 ## プロジェクト構成（モノレポ）
@@ -22,18 +22,21 @@ Chrome 拡張機能 → API Gateway → Lambda → Alexa スキル
 │   ├── cdk/                    # AWS CDK インフラコード
 │   │   ├── lib/
 │   │   │   ├── stack/
-│   │   │   │   ├── alexa-skill-stack.ts   # Alexa スキルスタック
-│   │   │   │   └── webhook-stack.ts       # Webhook スタック
+│   │   │   │   ├── alexa-skill-stack.ts       # Alexa スキルスタック
+│   │   │   │   ├── webhook-stack.ts           # Webhook スタック
+│   │   │   │   └── durable-webhook-stack.ts   # Durable Webhook スタック
 │   │   │   └── stage/
-│   │   │       └── application-stage.ts   # アプリケーションステージ
+│   │   │       └── application-stage.ts       # アプリケーションステージ
 │   │   ├── lambda/
-│   │   │   ├── skill/          # Alexa スキル Lambda
-│   │   │   └── webhook/        # Webhook Lambda
+│   │   │   ├── skill/              # Alexa スキル Lambda
+│   │   │   ├── webhook/            # Webhook Lambda
+│   │   │   └── durable-webhook/    # Durable Webhook Lambda
 │   │   └── README.md
 │   └── chrome-extension/       # Chrome 拡張機能
 │       ├── manifest.json
 │       ├── content.js
 │       └── config.js
+├── work/                       # 設計ドキュメント
 ├── archive/                    # 過去の実装資料
 └── README.md
 ```
@@ -122,10 +125,20 @@ pnpm cdk synth
 
 ## アーキテクチャの特徴
 
-- **マルチリージョン**: Alexa スキル（us-west-2）と Webhook（ap-northeast-1）
+- **マルチリージョン**: Alexa スキル（us-west-2）、Webhook（ap-northeast-1）、Durable Webhook（us-east-2）
+- **Lambda Durable Functions**: 会議開始から終了までを1つの実行で管理、待機中は課金なし
 - **サーバーレス**: Lambda + DynamoDB でコスト最適化
 - **セキュリティ**: CDK Nag によるベストプラクティスチェック
 - **スケーラブル**: DynamoDB のオンデマンド課金
+
+## 設計ドキュメント
+
+`work/` ディレクトリに詳細な設計ドキュメントを格納：
+
+- `cdk-structure.md` - CDK の App/Stage/Stack 構成
+- `durable-workflow.md` - Durable Functions のワークフロー
+- `durable-execution-flow.md` - 実行ID A/B の動き
+- `checkpoint-explanation.md` - チェックポイントの仕組み
 
 ## ライセンス
 
