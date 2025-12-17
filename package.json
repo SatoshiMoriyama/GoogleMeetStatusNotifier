@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "cdk": "pnpm --filter cdk cdk",
     "cdk:build": "pnpm --filter cdk build",
     "cdk:diff": "pnpm --filter cdk cdk diff 'Dev/*'",
     "cdk:deploy": "pnpm cdk:build && pnpm --filter cdk cdk deploy 'Dev/*'"

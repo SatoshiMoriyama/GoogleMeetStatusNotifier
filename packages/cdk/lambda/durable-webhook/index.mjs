@@ -14,7 +14,7 @@ import { withDurableExecution } from "@aws/durable-execution-sdk-js";
 
 const skillLambdaClient = new LambdaClient({ region: "us-west-2" });
 const lambdaClient = new LambdaClient({
-  region: process.env.AWS_REGION || "ap-northeast-1",
+  region: "us-east-2",
 });
 const ddbClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -88,43 +88,48 @@ export const handler = withDurableExecution(async (event, context) => {
       throw new Error("meetingId is required");
     }
 
-    // DynamoDB から会議データを取得
-    const meetingData = await getMeetingData(meetingId);
+    // DynamoDB から会議データを取得（ステップとして実行し、リプレイ時は再実行しない）
+    const meetingData = await context.step("checkMeetingState", async () => {
+      return await getMeetingData(meetingId);
+    });
 
-    // 会議終了時の処理（callbackId が存在する = 会議中）
+    // 会議中の場合（callbackId が存在する）：コールバックを完了させて終了
     if (meetingData?.callbackId) {
       console.log("Completing callback:", meetingData.callbackId);
 
-      // コールバック完了
-      await lambdaClient.send(
-        new SendDurableExecutionCallbackSuccessCommand({
-          CallbackId: meetingData.callbackId,
-          Result: JSON.stringify({ status: "meeting_ended" }),
-        })
-      );
+      await context.step("completeCallback", async () => {
+        await lambdaClient.send(
+          new SendDurableExecutionCallbackSuccessCommand({
+            CallbackId: meetingData.callbackId,
+            Result: JSON.stringify({ status: "meeting_ended" }),
+          })
+        );
+      });
 
-      // DynamoDB から削除
-      await deleteMeetingData(meetingId);
-
-      console.log("Meeting ended successfully:", meetingId);
-      return;
+      console.log("Callback completed for:", meetingId);
+      return { processed: "callback_completed" };
     }
 
-    // 会議開始時の処理（callbackId が存在しない = 新規会議）
+    // 新規会議の場合：メインのフロー
     // ステップ1: 開始通知
     await context.step("notifyStart", async () => {
       await notifyAlexa("meeting_started");
     });
 
     // コールバック作成
-    const [callbackPromise, callbackId] = await context.createCallback({
-      timeout: { hours: 24 },
-    });
+    const [callbackPromise, callbackId] = await context.createCallback(
+      "wait-for-meeting-end",
+      {
+        timeout: { hours: 24 },
+      }
+    );
 
     console.log("CallbackId created:", callbackId);
 
     // DynamoDB に保存
-    await saveMeetingData(meetingId, callbackId);
+    await context.step("saveCallbackId", async () => {
+      await saveMeetingData(meetingId, callbackId);
+    });
 
     // コールバック待機（会議終了まで停止）
     await callbackPromise;

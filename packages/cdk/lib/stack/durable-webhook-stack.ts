@@ -44,7 +44,7 @@ export class DurableWebhookStack extends cdk.Stack {
           MEETING_STATE_TABLE_NAME: this.meetingStateTable.tableName,
         },
         durableConfig: {
-          executionTimeout: cdk.Duration.minutes(15),
+          executionTimeout: cdk.Duration.hours(24),
           retentionPeriod: cdk.Duration.days(7),
         },
       }
