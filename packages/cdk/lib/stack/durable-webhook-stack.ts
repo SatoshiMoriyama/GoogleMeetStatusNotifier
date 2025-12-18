@@ -1,10 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
-import * as events from "aws-cdk-lib/aws-events";
-import * as targets from "aws-cdk-lib/aws-events-targets";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
-import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import * as path from "path";
 
@@ -14,7 +11,6 @@ export interface DurableWebhookStackProps extends cdk.StackProps {
 
 export class DurableWebhookStack extends cdk.Stack {
   public readonly meetingStateTable: dynamodb.Table;
-  public readonly eventBus: events.EventBus;
   public readonly api: apigateway.RestApi;
 
   constructor(scope: Construct, id: string, props: DurableWebhookStackProps) {
@@ -100,102 +96,39 @@ export class DurableWebhookStack extends cdk.Stack {
     // DynamoDB の読み書き権限
     this.meetingStateTable.grantReadWriteData(durableWebhookLambda);
 
-    // EventBridge バス
-    this.eventBus = new events.EventBus(this, "MeetingEventBus", {
-      eventBusName: "meeting-events",
-    });
-
     // API Gateway
     this.api = new apigateway.RestApi(this, "MeetingApi", {
       restApiName: "Meeting Webhook API",
       description: "API for meeting webhook events",
     });
 
-    // API Gateway → EventBridge 統合用の IAM Role
-    const apiGatewayEventBridgeRole = new iam.Role(
-      this,
-      "ApiGatewayEventBridgeRole",
-      {
-        assumedBy: new iam.ServicePrincipal("apigateway.amazonaws.com"),
-      }
-    );
-
-    this.eventBus.grantPutEventsTo(apiGatewayEventBridgeRole);
-
-    // API Gateway → EventBridge 統合
-    const eventBridgeIntegration = new apigateway.AwsIntegration({
-      service: "events",
-      action: "PutEvents",
-      options: {
-        credentialsRole: apiGatewayEventBridgeRole,
-        passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
-        requestTemplates: {
-          "application/json": `
-#set($context.requestOverride.header.X-Amz-Target = "AWSEvents.PutEvents")
-#set($context.requestOverride.header.Content-Type = "application/x-amz-json-1.1")
-{
-  "Entries": [
-    {
-      "Source": "meeting.webhook",
-      "DetailType": "MeetingEvent",
-      "Detail": "$util.escapeJavaScript($input.body)",
-      "EventBusName": "${this.eventBus.eventBusName}"
-    }
-  ]
-}`,
+    // API Gateway → Lambda 非同期統合
+    const lambdaIntegration = new apigateway.LambdaIntegration(alias, {
+      proxy: false,
+      integrationResponses: [
+        {
+          statusCode: "202",
+          responseTemplates: {
+            "application/json": '{"message": "Request accepted"}',
+          },
         },
-        integrationResponses: [
-          {
-            statusCode: "200",
-            responseTemplates: {
-              "application/json": `
-#set($inputRoot = $input.path('$'))
-{
-  "eventId": "$inputRoot.Entries[0].EventId",
-  "message": "Event accepted"
-}`,
-            },
-          },
-          {
-            statusCode: "400",
-            selectionPattern: "4\\d{2}",
-            responseTemplates: {
-              "application/json": '{"message": "Bad request"}',
-            },
-          },
-          {
-            statusCode: "500",
-            selectionPattern: "5\\d{2}",
-            responseTemplates: {
-              "application/json": '{"message": "Internal server error"}',
-            },
-          },
-        ],
+      ],
+      requestTemplates: {
+        "application/json": JSON.stringify({
+          body: "$util.escapeJavaScript($input.body)",
+          headers: "$input.params().header",
+        }),
+      },
+      passthroughBehavior: apigateway.PassthroughBehavior.NEVER,
+      requestParameters: {
+        "integration.request.header.X-Amz-Invocation-Type": "'Event'",
       },
     });
 
     // /webhook エンドポイント
     const webhookResource = this.api.root.addResource("webhook");
-    webhookResource.addMethod("POST", eventBridgeIntegration, {
-      requestParameters: {
-        "method.request.header.X-Amz-Target": false,
-        "method.request.header.Content-Type": false,
-      },
-      methodResponses: [
-        { statusCode: "200" },
-        { statusCode: "400" },
-        { statusCode: "500" },
-      ],
-    });
-
-    // EventBridge ルール: Lambda をターゲットに
-    new events.Rule(this, "MeetingEventRule", {
-      eventBus: this.eventBus,
-      eventPattern: {
-        source: ["meeting.webhook"],
-        detailType: ["MeetingEvent"],
-      },
-      targets: [new targets.LambdaFunction(alias)],
+    webhookResource.addMethod("POST", lambdaIntegration, {
+      methodResponses: [{ statusCode: "202" }],
     });
 
     new cdk.CfnOutput(this, "DurableLambdaArn", {
@@ -208,14 +141,9 @@ export class DurableWebhookStack extends cdk.Stack {
       description: "Meeting State DynamoDB Table Name",
     });
 
-    new cdk.CfnOutput(this, "EventBusName", {
-      value: this.eventBus.eventBusName,
-      description: "EventBridge Event Bus Name",
-    });
-
     new cdk.CfnOutput(this, "ApiUrl", {
       value: this.api.url,
-      description: "API Gateway URL",
+      description: "API Gateway URL (async invocation)",
     });
   }
 }

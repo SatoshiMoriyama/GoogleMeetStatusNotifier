@@ -79,10 +79,11 @@ async function notifyAlexa(status) {
 
 export const handler = withDurableExecution(async (event, context) => {
   try {
-    // EventBridge からのイベント（detail は既にオブジェクト）
-    const { meetingId } = event.detail;
+    // API Gateway からの直接呼び出しに対応
+    const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
+    const meetingId = body.meetingId || 'default';
 
-    console.log("Received:", { meetingId });
+    console.log("Received:", { meetingId, event });
 
     if (!meetingId) {
       throw new Error("meetingId is required");
